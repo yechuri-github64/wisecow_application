@@ -24,6 +24,9 @@ jobs:
       env:
         KUBECONFIG: $GITHUB_WORKSPACE/config
       run: |
+        echo $KUBECONFIG
+        kubectl config view
+        kubectl config current-context
         kubectl cluster-info 
         kubectl apply -f k8/deployment.yaml
         kubectl apply -f k8/service.yaml
