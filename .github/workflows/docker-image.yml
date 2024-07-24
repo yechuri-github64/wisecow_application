@@ -47,7 +47,10 @@ jobs:
         sudo mv ./kubectl /usr/local/bin/kubectl
     - name: Create kube directory
       run: |
-        mkdir -p $HOME/.kube
+        pwd
+        whoami
+        echo $HOME
+        mkdir -p /home/runner/.kube
     - name: Deploy to Kubernetes
       env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
