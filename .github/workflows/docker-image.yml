@@ -29,16 +29,14 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-    - name: Build and tag Docker image
+    - name: Set IMAGE_NAME and TIMESTAMP
+      id: vars
       run: |
-        TIMESTAMP=$(date +%Y%m%d%H%M%S)
-        IMAGE_NAME="akhilyechuri064/wisecow"
-        docker build . --file Dockerfile --tag $IMAGE_NAME:$TIMESTAMP
-        docker tag $IMAGE_NAME:$TIMESTAMP $IMAGE_NAME:latest
+        echo "IMAGE_NAME=akhilyechuri064/wisecow" >> $GITHUB_ENV
+        echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
-    - name: Push Docker images
+    - name: Build and push
       run: |
-        TIMESTAMP=$(date +%Y%m%d%H%M%S)
-        IMAGE_NAME="akhilyechuri064/wisecow"
-        docker push $IMAGE_NAME:$TIMESTAMP
-        docker push $IMAGE_NAME:latest
+        docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }}
+        docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+        docker push ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
