@@ -9,37 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Cache Docker layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-    - name: Set IMAGE_NAME and TIMESTAMP
-      id: vars
-      run: |
-        echo "IMAGE_NAME=akhilyechuri064/wisecow" >> $GITHUB_ENV
-        echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-
-    - name: Build and push
-      run: |
-        docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }}
-        docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
-        docker push ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
     - name: Install kubectl
       run: |
         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -50,10 +19,11 @@ jobs:
         KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       run: |
         echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $GITHUB_WORKSPACE/config
-
+        cat $GITHUB_WORKSPACE/config
     - name: Deploy to Kubernetes
       env:
         KUBECONFIG: $GITHUB_WORKSPACE/config
       run: |
+        kubectl cluster-info 
         kubectl apply -f k8/deployment.yaml
         kubectl apply -f k8/service.yaml
