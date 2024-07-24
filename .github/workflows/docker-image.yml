@@ -40,9 +40,17 @@ jobs:
         docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }}
         docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
         docker push ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+    - name: Install kubectl
+      run: |
+        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+    - name: Create kube directory
+      run: |
+        mkdir -p $HOME/.kube
     - name: Deploy to Kubernetes
       env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       run: |
         echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $HOME/.kube/config
         kubectl apply -f k8/deployment.yaml
