@@ -26,7 +26,7 @@ jobs:
       run: |
         echo $KUBECONFIG
         kubectl config view
-        kubectl config current-context
+        kubectl config set-context --current --namespace=default
         kubectl cluster-info 
         kubectl apply -f k8/deployment.yaml
         kubectl apply -f k8/service.yaml
