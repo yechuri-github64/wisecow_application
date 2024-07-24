@@ -45,16 +45,15 @@ jobs:
         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
-    - name: Create kube directory
+    - name: Set up kubeconfig
+      env:
+        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       run: |
-        pwd
-        whoami
-        echo $HOME
-        mkdir -p /home/runner/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $GITHUB_WORKSPACE/config
+
     - name: Deploy to Kubernetes
       env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        KUBECONFIG: $GITHUB_WORKSPACE/config
       run: |
-        echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $HOME/.kube/config
         kubectl apply -f k8/deployment.yaml
-        kubectl apply -f k8/service.yaml
+        kubectl apply -f k8/service.yaml
