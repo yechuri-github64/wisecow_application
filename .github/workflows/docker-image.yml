@@ -9,12 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps: 
-    - name: check path
-      run: |
-        pwd
-        ls -al
-        cd /
-        find . -name "*k8"
-        find . -name "*yaml*"
-       
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+      - name: check path
+        run: |
+          pwd
+          ls -al
+         
     
