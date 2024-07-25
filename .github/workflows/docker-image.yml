@@ -9,24 +9,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install kubectl
-      run: |
-        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
-    - name: Set up kubeconfig
-      env:
-        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-      run: |
-        echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $GITHUB_WORKSPACE/config
-        cat $GITHUB_WORKSPACE/config
-    - name: Deploy to Kubernetes
-      env:
-        KUBECONFIG: $GITHUB_WORKSPACE/config
-      run: |
-        echo $KUBECONFIG
-        kubectl config view
-        kubectl config set-context --current --namespace=default
-        kubectl cluster-info 
-        kubectl apply -f k8/deployment.yaml
-        kubectl apply -f k8/service.yaml
+      - name: Install kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+
+      - name: Set up kubeconfig
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $GITHUB_WORKSPACE/config
+          cat $GITHUB_WORKSPACE/config
+
+      - name: Deploy to Kubernetes
+        env:
+          KUBECONFIG: $GITHUB_WORKSPACE/config
+        run: |
+          echo $KUBECONFIG
+          kubectl config view
+          kubectl config set-context --current --namespace=default
+          kubectl cluster-info
+          kubectl apply -f k8/deployment.yaml
+          kubectl apply -f k8/service.yaml
+
