@@ -11,25 +11,26 @@ jobs:
     steps:
       - name: Install kubectl
         run: |
-          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          sudo mv ./kubectl /usr/local/bin/kubectl
+           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+           chmod +x ./kubectl
+           sudo mv ./kubectl /usr/local/bin/kubectl
+           echo "kubectl installed successfully"
 
       - name: Set up kubeconfig
         env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+          KUBE_CONFIG: ${{ secrets.KUBECONFIG_BASE64 }}
         run: |
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $GITHUB_WORKSPACE/config
-          cat $GITHUB_WORKSPACE/config
+          echo "${KUBECONFIG_BASE64}" | base64 --decode > $GITHUB_WORKSPACE/config
+          echo "Kubeconfig has been set up"
+          cat $GITHUB_WORKSPACE/config  # Optional: View kubeconfig for debugging (consider removing for security reasons)
 
       - name: Deploy to Kubernetes
         env:
-          KUBECONFIG: $GITHUB_WORKSPACE/config
+           KUBECONFIG: $GITHUB_WORKSPACE/config
         run: |
-          echo $KUBECONFIG
-          kubectl config view
-          kubectl config set-context --current --namespace=default
-          kubectl cluster-info
-          kubectl apply -f k8/deployment.yaml
-          kubectl apply -f k8/service.yaml
-
+           echo "Using KUBECONFIG at $KUBECONFIG"
+           kubectl config view
+           kubectl config set-context --current --namespace=default
+           kubectl cluster-info
+           kubectl apply -f k8/deployment.yaml
+           kubectl apply -f k8/service.yaml
