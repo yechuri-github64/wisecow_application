@@ -9,14 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps: 
-    - name: create kubeconfig 
-      run: | 
-         mkdir ${HOME}/.kube 
-         echo ${{ secret.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config 
-         cat ${HOME}/.kube/config 
-    - name: use context 
-      run: kubectl config use-config minikube 
-    - name: deploy to k8s 
-      run: | 
-        kubectl apply -f k8/deployment.yaml 
+    - name: Create kubeconfig
+      run: |
+        mkdir -p ${HOME}/.kube
+        echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
+        cat ${HOME}/.kube/config
+
+    - name: Use context
+      run: kubectl config use-context minikube
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f k8/deployment.yaml
         kubectl apply -f k8/service.yaml
