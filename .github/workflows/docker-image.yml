@@ -20,7 +20,7 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBECONFIG_BASE64 }}
         run: |
-          echo "${KUBECONFIG_BASE64}" | base64 --decode > $GITHUB_WORKSPACE/config
+          echo "${KUBE_CONFIG}" | base64 --decode > $GITHUB_WORKSPACE/config
           echo "Kubeconfig has been set up"
           cat $GITHUB_WORKSPACE/config  # Optional: View kubeconfig for debugging (consider removing for security reasons)
 
