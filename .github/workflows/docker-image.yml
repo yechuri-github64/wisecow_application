@@ -16,3 +16,8 @@ jobs:
       uses: medyagh/setup-minikube@latest
     - name: Try the cluster!
       run: kubectl get pods -A
+    - name: Deploy to Kubernetes
+      run: |
+          kubectl apply -f k8/deployment.yaml
+          kubectl apply -f k8/service.yaml
+          kubectl get pods -A
