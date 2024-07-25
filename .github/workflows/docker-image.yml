@@ -9,6 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps: 
+    - name: chec path
+      run: |
+        pwd
+        ls -al
+       
     - uses: actions/checkout@v4
       with:
         repository: medyagh/local-dev-example-with-minikube
