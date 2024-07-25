@@ -22,7 +22,6 @@ jobs:
           mkdir -p ${HOME}/.kube
           echo "${KUBECONFIG_DATA}" | base64 --decode > ${HOME}/.kube/config
           cat ${HOME}/.kube/config
-
     - name: Debug kubeconfig
       run: |
           echo "KUBECONFIG Content:"
