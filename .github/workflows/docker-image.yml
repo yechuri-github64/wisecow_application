@@ -20,6 +20,15 @@ jobs:
       run: |
           pwd
           ls -al
+          cd ..
+          pwd
+          ls -al
+          cd ..
+          pwd
+          ls -al
+          cd ..
+          pwd
+          ls -al
           kubectl apply -f k8/deployment.yaml
           kubectl apply -f k8/service.yaml
           kubectl get pods -A
