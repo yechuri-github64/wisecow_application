@@ -9,32 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps: 
-    - name: Install kubectl
-      run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-
-    - name: Set up kubeconfig
-      env:
-          KUBECONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
-      run: |
-          mkdir -p ${HOME}/.kube
-          echo "${KUBECONFIG_DATA}" | base64 --decode > ${HOME}/.kube/config
-          cat ${HOME}/.kube/config
-    - name: Debug kubeconfig
-      run: |
-          echo "KUBECONFIG Content:"
-          cat ${HOME}/.kube/config
-          kubectl config view
-
-    - name: List contexts
-      run: kubectl config get-contexts
-
-    - name: Use context
-      run: kubectl config use-context minikube
-
-    - name: Deploy to Kubernetes
-      run: |
-          kubectl apply -f k8/deployment.yaml
-          kubectl apply -f k8/service.yaml
+    - uses: actions/checkout@v4
+      with:
+        repository: medyagh/local-dev-example-with-minikube
+    - name: Start minikube
+      uses: medyagh/setup-minikube@latest
+    - name: Try the cluster!
+      run: kubectl get pods -A
