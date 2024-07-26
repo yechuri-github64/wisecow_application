@@ -64,3 +64,10 @@ jobs:
         sleep 200 #for pods waitinh time
         kubectl get pods -n wisecow
         kubectl get service -n wisecow 
+    - name: Port Forward Deployment
+      run: |
+        kubectl port-forward deployment/wisecow-deployment 4450:4490 -n wisecow &
+        sleep 5 # allow some time for port forwarding to establish
+    - name: Test Application
+      run: |
+        curl http://localhost:4450
