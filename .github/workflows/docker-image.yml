@@ -31,5 +31,9 @@ jobs:
         sleep 200 #for pods waitinh time
         kubectl get pods -n wisecow
         kubectl get service -n wisecow
-        kubectl port-forward svc/wisecow-service 8080:80 -n wisecow
-        curl http://localhost:8080
+        # Get the service IP and port
+        SERVICE_IP=$(kubectl get svc wisecow-service -n wisecow -o jsonpath='{.spec.clusterIP}')
+        SERVICE_PORT=$(kubectl get svc wisecow-service -n wisecow -o jsonpath='{.spec.ports[0].port}')
+        # Use curl to check the service
+        echo "Checking service..."
+        curl http://$SERVICE_IP:$SERVICE_PORT
