@@ -57,10 +57,10 @@ jobs:
       run: kubectl get pods -A
     - name: Deploy to Kubernetes
       run: |
-        ls -al
-        pwd
-        kubectl apply -f k8/deployment.yaml
-        kubectl apply -f k8/service.yaml
-        kubectl get pods -A
-        sleep 200
-        kubectl get pods -A         
+        kubectl create namespace wisecow
+        kubectl apply -f k8/deployment.yaml -n  wisecow
+        kubectl apply -f k8/service.yaml -n wisecow
+        kubectl get pods -n wisecow
+        sleep 200 #for pods waitinh time
+        kubectl get pods -n wisecow
+        kubectl get service -n wisecow 
