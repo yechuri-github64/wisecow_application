@@ -31,4 +31,4 @@ Deploy the wisecow application as a k8s app
 # My work starts here....
 
 # building docker image
-
+ ![build_image](https://github.com/user-attachments/assets/e7a6610a-7184-4cd7-9026-23c8c7a62419)
