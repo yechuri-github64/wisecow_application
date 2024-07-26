@@ -65,10 +65,13 @@ jobs:
         kubectl get pods -n wisecow
         kubectl get service -n wisecow
         kubectl get nodes -o wide 
-    - name: Port Forward Deployment
-      run: |
-        kubectl port-forward deployment/wisecow-deployment 4450:80 -n wisecow &
-        sleep 20 # allow some time for port forwarding to establish
+    - name: Setup Kubernetes port-forward daemon
+      uses: vbem/k8s-port-forward@v1
+      with:
+        workload: 'svc/wisecow-service'
+        port: '4450:80'
+        namespace: 'wisecow'
+
     - name: Test Application
       run: |
-        curl http://localhost:
+        curl http://localhost:4450 || (echo "Curl failed; check application status." && exit 1)
