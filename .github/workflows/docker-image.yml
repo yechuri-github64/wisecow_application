@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: CI part start here...
+       #CI part.....
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Set up Docker Buildx
@@ -43,7 +43,7 @@ jobs:
         docker push ${{ env.IMAGE_NAME }}:latest
         echo "Docker images"
         docker images
-    - name : CD part starts here.... 
+       #CD part starts here.... 
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
