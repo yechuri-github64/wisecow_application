@@ -65,4 +65,4 @@ jobs:
         kubectl get pods -n wisecow
         kubectl get service -n wisecow
         kubectl get nodes -o wide 
-        curl http://localhost:80
+        kubectl port-forward deployments/wisecow-deployment 4450:4499 -n wiseapp
