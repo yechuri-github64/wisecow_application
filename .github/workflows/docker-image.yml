@@ -31,5 +31,5 @@ jobs:
         sleep 200 #for pods waitinh time
         kubectl get pods -n wisecow
         kubectl get service -n wisecow
-        nohup kubectl port-forward svc/wisecow-service 8080:80 -n wisecow
+        kubectl port-forward svc/wisecow-service 8080:80 -n wisecow
         curl http://localhost:8080
