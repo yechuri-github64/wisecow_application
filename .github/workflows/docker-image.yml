@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI/CD for wisecow app
 
 on:
   push:
@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: CI part start here...
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Set up Docker Buildx
@@ -25,7 +26,6 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
     - name: Set IMAGE_NAME and TIMESTAMP
       id: vars
       run: |
@@ -33,14 +33,17 @@ jobs:
         echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
     - name: Build and push
       run: |
+        echo "Building docker image using dockerfile"
         docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }}
+        echo "tagging image"
         docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
         docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:latest
+        echo "pusing to Docker hub"
         docker push ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
         docker push ${{ env.IMAGE_NAME }}:latest
-        echo "let's see images"
+        echo "Docker images"
         docker images
-      #cd part
+    - name : CD part starts here.... 
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
@@ -50,14 +53,28 @@ jobs:
       with:
           minikube-version: 'latest'
           kubernetes-version: 'v1.26.0'
-    - name: Try the cluster!
-      run: kubectl get pods -A
     - name: Deploy to Kubernetes
       run: |
+        echo "creating Namespace for application"
         kubectl create namespace wisecow
+        echo "applying manifest files"
         kubectl apply -f k8/deployment.yaml -n  wisecow
         kubectl apply -f k8/service.yaml -n wisecow
+        kubectl apply -f k8/ingress.yaml -n wisecow
+        echo "get pods"
         kubectl get pods -n wisecow
+        echo "Awaiting pods to reach the 'Ready' state"
         sleep 100 #for pods waiting time
         kubectl get pods -n wisecow
-        kubectl get service -n wisecow
+        echo  "Deployments"
+        kubectl get deployments -n wisecow
+        echo "service"
+        kubectl get svc -n wisecow
+    - name: Portforward the service
+      run: |
+        nohup kubectl port-forward svc/wisecow-service -n wisecow 8080:80 > port-forward.log 2>&1 &
+        while ! nc -z localhost 8080; do   
+          sleep 1
+        done
+        curl http://localhost:8080
+        pkill -f "kubectl port-forward svc/wisecow-service"
