@@ -24,7 +24,7 @@ check_application_status() {
   if [ "$http_status" -eq "$EXPECTED_STATUS_CODE" ]; then
     log_message "INFO: Application is UP. Status code: $http_status"
   else
-    log_message "ALERT: Application is DOWN or not responding as expected. Status code: $http_status"
+    log_message "ALERT: Appplication is DOWN or not responding as expected. Status code: $http_status"
   fi
 }
 
