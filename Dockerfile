@@ -1,3 +1,4 @@
+# base image 
 FROM ubuntu:latest
 
 # Install cowsay package
