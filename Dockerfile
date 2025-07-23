@@ -1,25 +1,37 @@
-# base image 
-FROM ubuntu:latest
+FROM ubuntu:20.04
 
-# Install cowsay package
+# Avoid prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install runtime dependencies
 RUN apt-get update && \
-    apt-get install -y fortune-mod cowsay fortune && \
-    apt-get install -y  netcat-openbsd
+    apt-get install -y --no-install-recommends \
+    fortune-mod \
+    fortunes \
+    cowsay \
+    netcat-openbsd && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set the PATH variable to include the location of cowsay
-ENV PATH="/usr/games:${PATH}"
+# Create a non-root user and group
+RUN addgroup --system appgroup && adduser --system --no-create-home --ingroup appgroup appuser
 
-# Copy the script to the container
-COPY wisecow.sh /
+# Create working directory and set ownership
+WORKDIR /app
+RUN chown appuser:appgroup /app
 
-# Give the script executable permission
-RUN chmod +x /wisecow.sh
+# Copy the script
+COPY wisecow.sh /app/wisecow.sh
+RUN chmod +x /app/wisecow.sh
 
-# Set the working directory to root
-WORKDIR /
+# Use non-root user
+USER appuser
+
+# Set PATH to include cowsay and fortune
+ENV PATH="/usr/games:/app:${PATH}"
 
 # Expose the service port
 EXPOSE 4499
 
 # Start the script
-CMD ["./wisecow.sh"]
+CMD ["/app/wisecow.sh"]
