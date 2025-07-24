@@ -5,76 +5,93 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-       #CI part.....
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Cache Docker layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-    - name: Set IMAGE_NAME and TIMESTAMP
-      id: vars
-      run: |
-        echo "IMAGE_NAME=akhilyechuri064/wisecow" >> $GITHUB_ENV
-        echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-    - name: Build and push
-      run: |
-        echo "Building docker image using dockerfile"
-        docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }}
-        echo "tagging image"
-        docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
-        docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:latest
-        echo "pusing to Docker hub"
-        docker push ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
-        docker push ${{ env.IMAGE_NAME }}:latest
-        echo "Docker images"
-        docker images
-       #CD part starts here.... 
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-          repository: ${{ github.repository }}
-    - name: Start Minikube
-      uses: medyagh/setup-minikube@latest
-      with:
+      # ----- CI STEPS -----
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set IMAGE_NAME and TIMESTAMP
+        run: |
+          echo "IMAGE_NAME=akhilyechuri064/wisecow" >> $GITHUB_ENV
+          echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} .
+          docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+          docker tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+          docker push ${{ env.IMAGE_NAME }}:latest
+
+      # ----- CD STEPS -----
+
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
           minikube-version: 'latest'
           kubernetes-version: 'v1.26.0'
-    - name: Deploy to Kubernetes
-      run: |
-        echo "creating Namespace for application"
-        kubectl create namespace wisecow
-        echo "applying manifest files"
-        kubectl apply -f k8/deployment.yaml -n  wisecow
-        kubectl apply -f k8/service.yaml -n wisecow
-        kubectl apply -f k8/ingress.yaml -n wisecow
-        echo "get pods"
-        kubectl get pods -n wisecow
-        echo "Awaiting pods to reach the 'Ready' state"
-        sleep 100 #for pods waiting time
-        kubectl get pods -n wisecow
-        echo  "Deployments"
-        kubectl get deployments -n wisecow
-        echo "service"
-        kubectl get svc -n wisecow
-    - name: Portforward the service
-      run: |
-        nohup kubectl port-forward svc/wisecow-service -n wisecow 8080:80 > port-forward.log 2>&1 &
-        while ! nc -z localhost 8080; do   
-          sleep 1
-        done
-        curl http://localhost:8080
-        pkill -f "kubectl port-forward svc/wisecow-service"
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+          helm version
+
+      - name: Install NGINX Ingress Controller
+        run: |
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+            --namespace ingress-nginx --create-namespace
+          echo "Waiting for ingress controller to be ready..."
+          kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx --timeout=120s
+
+      - name: Generate Self-Signed TLS Cert
+        run: |
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -keyout tls.key -out tls.crt \
+            -subj "/CN=myapp.local/O=myorg"
+
+      - name: Create TLS Secret
+        run: |
+          kubectl create secret tls myapp-tls-secret \
+            --cert=tls.crt --key=tls.key \
+            --namespace=wisecow || true
+
+      - name: Deploy Wisecow App and Ingress
+        run: |
+          kubectl create namespace wisecow || true
+          kubectl apply -f k8/deployment.yaml -n wisecow
+          kubectl apply -f k8/service.yaml -n wisecow
+          kubectl apply -f k8/ingress.yaml -n wisecow
+          echo "Waiting for pods to be ready..."
+          sleep 30
+          kubectl get pods -n wisecow
+
+      - name: Test HTTPS via Ingress
+        run: |
+          echo "Port-forwarding ingress-nginx for HTTPS access"
+          nohup kubectl port-forward svc/ingress-nginx-controller -n ingress-nginx 8443:443 > ingress-port.log 2>&1 &
+          while ! nc -z localhost 8443; do sleep 1; done
+          echo "Curling via HTTPS with Host header"
+          curl -k https://localhost:8443 -H "Host: myapp.local"
+          pkill -f "kubectl port-forward svc/ingress-nginx-controller"
