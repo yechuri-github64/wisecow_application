@@ -1,20 +1,21 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: wisecow-ingress
+  name: myapp-ingress
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
+  ingressClassName: nginx
   tls:
   - hosts:
-    - localhost
-    secretName: wisecow-tls
+    - myapp.local
+    secretName: myapp-tls-secret
   rules:
-  - host: localhost
+  - host: myapp.local
     http:
       paths:
       - path: /
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             name: wisecow-service
