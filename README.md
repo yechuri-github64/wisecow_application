@@ -9,8 +9,14 @@ This project covers containerizing, deploying, and securing the Wisecow app usin
 1. Clone the Repository:
 2. git clone [https://github.com/<your-username>/wisecow_application.git](https://github.com/yechuri-github64/wisecow_application.git)
 3. cd wisecow_application
-
-
+## Make the Script Executable
+chmod +x wisecow.sh
+## Run the App
+./wisecow.sh
+or 
+bash wisecow.sh
+## Access the App
+http://localhost:4499
 ## What to expect?
 ![wisecow](https://github.com/nyrahul/wisecow/assets/9133227/8d6bfde3-4a5a-480e-8d55-3fef60300d98)
 
