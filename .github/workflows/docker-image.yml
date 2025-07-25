@@ -74,15 +74,14 @@ jobs:
       - name: Create TLS Secret
         run: |
           kubectl create secret tls myapp-tls-secret \
-            --cert=tls.crt --key=tls.key \
-            --namespace=wisecow || true
+            --cert=tls.crt --key=tls.key 
+
 
       - name: Deploy Wisecow App and Ingress
         run: |
-          kubectl create namespace wisecow || true
-          kubectl apply -f k8/deployment.yaml -n wisecow
-          kubectl apply -f k8/service.yaml -n wisecow
-          kubectl apply -f k8/ingress.yaml -n wisecow
+          kubectl apply -f k8/deployment.yaml 
+          kubectl apply -f k8/service.yaml 
+          kubectl apply -f k8/ingress.yaml
           echo "Waiting for pods to be ready..."
           sleep 30
           kubectl get pods -n wisecow
