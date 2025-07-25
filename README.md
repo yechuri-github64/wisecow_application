@@ -7,7 +7,7 @@ This project covers containerizing, deploying, and securing the Wisecow app usin
 2. sudo apt install fortune-mod cowsay -y
 ## How to Run Locally
 1. Clone the Repository:
-2. git clone https://github.com/<your-username>/wisecow_application.git
+2. git clone [https://github.com/<your-username>/wisecow_application.git](https://github.com/yechuri-github64/wisecow_application.git)
 3. cd wisecow_application
 
 
