@@ -78,5 +78,21 @@ On every main branch push:
 2. Minikube is started in CI pipeline.
 3. Kubernetes manifests are applied
 4 .TLS setup + Ingress routing configured
+
+##  TLS (HTTPS) Support
+TLS is implemented using a self-signed certificate:
+1. openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout tls.key -out tls.crt \
+  -subj "/CN=myapp.local/O=myorg"
+2. Then converted to a K8s TLS secret:
+   kubectl create secret tls myapp-tls-secret \
+  --cert=tls.crt --key=tls.key
+### Ingress is configured to route https://myapp.local to the app service securely.
+
+## Test with curl:
+curl -k https://myapp.local -H "Host: myapp.local"
+
+
+
 # Conclusion
 The project demonstrates the complete lifecycle of containerizing, deploying, and securing the Wisecow application on Kubernetes, utilizing a robust CI/CD pipeline and TLS for secure communication.
