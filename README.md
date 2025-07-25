@@ -31,8 +31,8 @@ http://localhost:4499
 
 ## Dockerization
 
-Created a Dockerfile to containerize the app.
-Image is pushed to Docker Hub on every commit using GitHub Actions.
+-> Created a Dockerfile to containerize the app.
+-> Image is pushed to Docker Hub on every commit using GitHub Actions.
 
 
 # My work starts here....
