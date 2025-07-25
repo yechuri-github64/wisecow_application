@@ -2,10 +2,10 @@
 A fun little web server that delivers wisdom through fortune and cowsay!
 This project covers containerizing, deploying, and securing the Wisecow app using Kubernetes, GitHub Actions (CI/CD), and TLS.
 
-🔧 ## Prerequisites (for local run)
+## Prerequisites (for local run)
 Make sure the following packages are installed:
-     sudo apt update
-     sudo apt install fortune-mod cowsay -y
+     1.sudo apt update
+     2. sudo apt install fortune-mod cowsay -y
 How to Run Locally
 ##1. Clone the Repository:
      git clone https://github.com/<your-username>/wisecow_application.git
