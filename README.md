@@ -1,4 +1,4 @@
- ## Wisecow Application
+# Wisecow Application
 A fun little web server that delivers wisdom through fortune and cowsay!
 This project covers containerizing, deploying, and securing the Wisecow app using Kubernetes, GitHub Actions (CI/CD), and TLS.
 
@@ -22,6 +22,12 @@ http://localhost:4499
 
 # Kubernetes Deployment with CI/CD and TLS
 ## What I Did
+1. Dockerized the app
+2. Wrote Kubernetes manifests (Deployment, Service, Ingress)
+3. Created self-signed TLS certificate
+4. Deployed Ingress NGINX Controller via Helm
+5. Implemented HTTPS using Ingress TLS
+6. Built CI/CD pipeline using GitHub Actions & Minikube
 
 ## Requirement
 1. Create Dockerfile for the image and corresponding k8s manifest to deploy in k8s env. The wisecow service should be exposed as k8s service.
