@@ -68,9 +68,15 @@ Reproducibility: By defining the Minikube setup in the CI/CD pipeline, we ensure
 # pods are ready.....
 ![pods are ready](https://github.com/user-attachments/assets/f4cbe4e2-4c44-4d3b-b599-bdf7cbd024e3)
 
-# Results
-# port-forward......
-![port forward](https://github.com/user-attachments/assets/dce647ba-2967-4cb2-bde8-562f121e3e24)
-
+## TLS implemented via:
+1. Self-signed certificate (tls.key, tls.crt)
+2. TLS secret: myapp-tls-secret
+3. Ingress with HTTPS route
+##  GitHub Actions (CI/CD)
+On every main branch push:
+1. Docker image is built and pushed to Docker Hub.
+2. Minikube is started in CI pipeline.
+3. Kubernetes manifests are applied
+4 .TLS setup + Ingress routing configured
 # Conclusion
 The project demonstrates the complete lifecycle of containerizing, deploying, and securing the Wisecow application on Kubernetes, utilizing a robust CI/CD pipeline and TLS for secure communication.
