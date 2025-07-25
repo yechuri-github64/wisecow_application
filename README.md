@@ -29,22 +29,6 @@ http://localhost:4499
 5. Implemented HTTPS using Ingress TLS
 6. Built CI/CD pipeline using GitHub Actions & Minikube
 
-## Dockerization
-
-1. Created a Dockerfile to containerize the app.
-2. Image is pushed to Docker Hub on every commit using GitHub Actions.
-
-
-# My work starts here....
-
-project involves containerizing and deploying the Wisecow application to a Kubernetes environment with secure TLS communication. The deployment process is automated using a CI/CD pipeline powered by GitHub Actions. Below is a detailed account of the steps taken, complete with images showing various stages of the process.
-# Table of Contents
-  1.Dockerization
-  2.Kubernetes Deployment
-  3.CI/CD Pipeline
-  4.TLS Implementation
-    Results
-    Conclusion
 # Dockerization
 The Wisecow application is Dockerized using the Dockerfile in this repository, which creates a container image for the application
 # building docker image
