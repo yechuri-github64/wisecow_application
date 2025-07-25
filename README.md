@@ -1,4 +1,4 @@
-🐮 ## Wisecow Application
+ ## Wisecow Application
 A fun little web server that delivers wisdom through fortune and cowsay!
 This project covers containerizing, deploying, and securing the Wisecow app using Kubernetes, GitHub Actions (CI/CD), and TLS.
 
